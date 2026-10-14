@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nyokoloditransit.com"),
+  metadataBase: new URL("https://nyokoloditransit.co.za"),
   title: "Nyokolodi Transit | Reliable Shuttle Services in Gauteng, South Africa",
   description:
     "Safe. Comfortable. Affordable. Dependable shuttle services, airport transfers, corporate transport, and intercity travel across Gauteng and greater South Africa.",

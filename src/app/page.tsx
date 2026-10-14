@@ -8,10 +8,10 @@ import WhyChooseUsSection from "@/components/WhyChooseUsSection";
 import FleetSection from "@/components/FleetSection";
 import BrandExcellenceSection from "@/components/BrandExcellenceSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
-import ContactSection from "@/components/ContactSection";
+import ContactSection from "@/components/contact/ContactSection";
 import Footer from "@/components/Footer";
-import BookingModal from "@/components/BookingModal";
-import QuoteModal from "@/components/QuoteModal";
+import BookingModal from "@/components/booking/BookingModal";
+import QuoteModal from "@/components/quote/QuoteModal";
 
 export default function Home() {
   const [bookingModalOpen, setBookingModalOpen] = useState(false);

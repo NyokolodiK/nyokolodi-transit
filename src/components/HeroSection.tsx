@@ -13,6 +13,7 @@ import {
   Phone,
   Clock,
 } from "lucide-react";
+import { SITE } from "@/lib/site";
 
 interface HeroSectionProps {
   onBookRideClick: () => void;
@@ -51,7 +52,7 @@ export default function HeroSection({
           <div className="flex items-center gap-5 text-emerald-200 text-[11px] sm:text-xs">
             <span className="flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-[#22C55E]" />
-              Lenchen Ave, Rooihuiskraal North, Centurion, 0157
+              {SITE.address}
             </span>
             <span className="hidden sm:flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-[#22C55E]" />
@@ -59,11 +60,11 @@ export default function HeroSection({
             </span>
           </div>
           <a
-            href="tel:+27126610000"
+            href={`tel:${SITE.phoneE164}`}
             className="flex items-center gap-1.5 text-[#22C55E] font-semibold text-[11px] sm:text-xs hover:text-white transition-colors"
           >
             <Phone className="w-3.5 h-3.5" />
-            +27 (0)12 661 0000
+            {SITE.phoneDisplay}
           </a>
         </div>
       </div>

@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   ChevronRight,
 } from "lucide-react";
+import { SITE } from "@/lib/site";
 
 interface FooterProps {
   onBookRideClick: () => void;
@@ -145,11 +146,11 @@ export default function Footer({ onBookRideClick }: FooterProps) {
             <div className="space-y-2.5 text-xs text-emerald-100/80">
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-emerald-400" />
-                <span>+27 (0) 82 000 0000</span>
+                <span>{SITE.phoneDisplay}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-emerald-400" />
-                <span>info@nyokoloditransit.com</span>
+                <span>{SITE.email}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-emerald-400" />

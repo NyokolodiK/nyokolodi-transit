@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Calendar, Menu, X, Phone, MessageSquare } from "lucide-react";
+import { SITE, buildWhatsAppLink } from "@/lib/site";
 
 interface NavbarProps {
   onBookRideClick: () => void;
@@ -150,14 +151,14 @@ export default function Navbar({ onBookRideClick }: NavbarProps) {
 
               <div className="flex gap-2 pt-1">
                 <a
-                  href="tel:+27820000000"
+                  href={`tel:${SITE.phoneE164}`}
                   className="flex-1 flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-full text-xs font-medium"
                 >
                   <Phone className="w-3.5 h-3.5 text-[#146C36]" />
                   <span>Call Us</span>
                 </a>
                 <a
-                  href="https://wa.me/27820000000"
+                  href={buildWhatsAppLink(`Hello ${SITE.name}, I'd like to book a ride.`)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 flex items-center justify-center gap-2 bg-emerald-100/70 hover:bg-emerald-200 text-[#0E4D25] py-2.5 rounded-full text-xs font-medium"
