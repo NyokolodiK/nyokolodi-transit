@@ -1,34 +1,29 @@
 {
   "name": "nyokolodi-transit",
-  "private": true,
   "version": "0.1.0",
-  "description": "Nyokolodi Transit — AI-powered transport booking platform for South Africa.",
+  "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
-    "test:integration": "turbo run test:integration",
-    "test:e2e": "turbo run test:e2e",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs,css}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,md,json,mjs,css}\""
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.16.0",
+    "next": "^14.2.23",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sharp": "^0.35.5",
+    "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.5",
-    "@nyokolodi/config": "workspace:*",
-    "@types/node": "^24.10.0",
-    "eslint": "^9.39.5",
-    "prettier": "^3.9.10",
-    "prettier-plugin-tailwindcss": "^0.8.1",
-    "turbo": "^2.11.7",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.71.1",
-    "vitest": "^3.2.7"
-  },
-  "packageManager": "pnpm@9.15.9",
-  "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=9.0.0"
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5"
   }
 }

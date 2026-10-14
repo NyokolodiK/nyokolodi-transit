@@ -1,32 +1,57 @@
-# Dependencies
+# ── Dependencies ──────────────────────────────────────────
 node_modules/
-.pnpm-store/
+.pnp
+.pnp.js
 
-# Build outputs
+# ── Next.js build output ──────────────────────────────────
 .next/
-dist/
 out/
 build/
-.turbo/
-*.tsbuildinfo
+dist/
 
-# Environment
+# ── TypeScript ────────────────────────────────────────────
+*.tsbuildinfo
+next-env.d.ts
+
+# ── Environment variables ─────────────────────────────────
 .env
 .env.local
-.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
 
-# Logs
-*.log
-npm-debug.log*
-pnpm-debug.log*
-
-# OS / editor
+# ── OS / Editor artifacts ─────────────────────────────────
 .DS_Store
+Thumbs.db
+Desktop.ini
 .idea/
-.vscode/*
-!.vscode/extensions.json
-coverage/
+.vscode/
+*.swp
+*.swo
+*~
 
-# Test artifacts
-playwright-report/
-test-results/
+# ── Logs ─────────────────────────────────────────────────
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# ── Loose design/mockup files dumped in project root ──────
+/*.png
+/*.webp
+/*.svg
+/*.jpg
+/*.jpeg
+
+# ── Scripts output / scratch ──────────────────────────────
+scripts/output/
+scripts/*.tmp
+
+# ── Test coverage ────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ── Vercel / deployment ───────────────────────────────────
+.vercel
