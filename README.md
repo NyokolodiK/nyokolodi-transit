@@ -158,6 +158,36 @@ nyokolodi-transit/
 
 ---
 
+## SEO Route Pages (Programmatic)
+
+The site generates a static landing page for every popular shuttle route at
+`/shuttle/<origin>-to-<destination>` (e.g. `/shuttle/centurion-to-or-tambo-airport`),
+plus a hub index at `/shuttle`. Each page has unique metadata, canonical URL,
+pricing, and `Service` / `FAQPage` / `BreadcrumbList` structured data.
+
+Route data (locations, distances, fares) lives in **`src/lib/routes.ts`**. Add a
+location to `LOCATIONS` (or a hub to `HUB_IDS`) and the pages, fares, related
+links and sitemap regenerate automatically on the next build.
+
+**AI route copy (optional):** prose for each route can be generated once with
+Google Gemini's free tier and cached to `src/data/route-content.json`:
+
+```bash
+# 1. Add your free key to .env.local (copy from .env.example)
+#    GEMINI_API_KEY=...      (https://aistudio.google.com/app/apikey)
+
+# 2. Generate copy for all routes (skips ones already cached, rate-limited)
+npm run generate:routes
+
+# Other options:
+npm run generate:routes -- --force                     # regenerate everything
+npm run generate:routes -- --only=centurion-to-sandton # single route
+npm run generate:routes -- --dry-run                   # print the prompt only
+```
+
+When a route is missing from the cache, the page falls back to template copy —
+so generation is optional and the site always builds.
+
 ## Deployment
 
 The site is ready for deployment on **Vercel** (recommended) or any Node.js host.

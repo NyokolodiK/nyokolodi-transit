@@ -11,6 +11,8 @@ export interface VehicleRate {
   minimumFare: number;
   charterPerHour: number;
   charterMinimumHours: number;
+  /** Whether the vehicle is currently offered for booking. */
+  available: boolean;
 }
 
 export const VEHICLES: Record<VehicleId, VehicleRate> = {
@@ -23,6 +25,7 @@ export const VEHICLES: Record<VehicleId, VehicleRate> = {
     minimumFare: 350,
     charterPerHour: 400,
     charterMinimumHours: 2,
+    available: true,
   },
   minibus: {
     id: "minibus",
@@ -33,10 +36,20 @@ export const VEHICLES: Record<VehicleId, VehicleRate> = {
     minimumFare: 550,
     charterPerHour: 500,
     charterMinimumHours: 2,
+    available: false,
   },
 };
 
 export const DEFAULT_VEHICLE: VehicleId = "sedan";
+
+/** Vehicles currently offered for booking, in display order. */
+export const AVAILABLE_VEHICLES = Object.values(VEHICLES).filter(
+  (vehicle) => vehicle.available
+);
+
+export function isVehicleAvailable(id: VehicleId): boolean {
+  return Boolean(VEHICLES[id]?.available);
+}
 
 export const SURCHARGES = {
   afterHoursPercent: 15,

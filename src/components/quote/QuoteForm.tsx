@@ -142,7 +142,6 @@ export default function QuoteForm({ onSuccess }: QuoteFormProps) {
           <Select {...register("estimatedVehicles")}>
             <option value="1 - 2 Sedans">1 - 2 Suzuki Dzires</option>
             <option value="3 - 5 Vehicles">3 - 5 Sedans</option>
-            <option value="Group Shuttle (Minibus)">Group Shuttle (14 Seater)</option>
             <option value="Multi-vehicle Fleet">Full Fleet (10+ Vehicles)</option>
           </Select>
         </Field>

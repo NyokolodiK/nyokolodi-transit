@@ -54,7 +54,7 @@ export default function Footer({ onBookRideClick }: FooterProps) {
             <ul className="space-y-2.5 text-xs text-emerald-100/70">
               <li>
                 <Link
-                  href="#home"
+                  href="/#home"
                   className="hover:text-emerald-300 transition-colors flex items-center gap-1.5"
                 >
                   <ChevronRight className="w-3 h-3 text-emerald-500" />
@@ -63,7 +63,7 @@ export default function Footer({ onBookRideClick }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="#services"
+                  href="/#services"
                   className="hover:text-emerald-300 transition-colors flex items-center gap-1.5"
                 >
                   <ChevronRight className="w-3 h-3 text-emerald-500" />
@@ -72,7 +72,7 @@ export default function Footer({ onBookRideClick }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="#fleet"
+                  href="/#fleet"
                   className="hover:text-emerald-300 transition-colors flex items-center gap-1.5"
                 >
                   <ChevronRight className="w-3 h-3 text-emerald-500" />
@@ -81,7 +81,16 @@ export default function Footer({ onBookRideClick }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="#about"
+                  href="/shuttle"
+                  className="hover:text-emerald-300 transition-colors flex items-center gap-1.5"
+                >
+                  <ChevronRight className="w-3 h-3 text-emerald-500" />
+                  <span>Shuttle Routes</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/#about"
                   className="hover:text-emerald-300 transition-colors flex items-center gap-1.5"
                 >
                   <ChevronRight className="w-3 h-3 text-emerald-500" />
@@ -90,7 +99,7 @@ export default function Footer({ onBookRideClick }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="#testimonials"
+                  href="/#testimonials"
                   className="hover:text-emerald-300 transition-colors flex items-center gap-1.5"
                 >
                   <ChevronRight className="w-3 h-3 text-emerald-500" />
@@ -99,7 +108,7 @@ export default function Footer({ onBookRideClick }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="#contact"
+                  href="/#contact"
                   className="hover:text-emerald-300 transition-colors flex items-center gap-1.5"
                 >
                   <ChevronRight className="w-3 h-3 text-emerald-500" />

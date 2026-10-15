@@ -3,7 +3,12 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ArrowRight, Calendar, Clock, Mail, MapPin, Route } from "lucide-react";
-import { VEHICLES, VehicleId } from "@/lib/rates";
+import {
+  AVAILABLE_VEHICLES,
+  DEFAULT_VEHICLE,
+  VehicleId,
+  isVehicleAvailable,
+} from "@/lib/rates";
 import {
   BookingSummary,
   SERVICE_LABELS,
@@ -44,6 +49,14 @@ interface BookingFormProps {
   initialDropoff: string;
   onSuccess: (summary: BookingSummary) => void;
 }
+
+const MINIBUS_AVAILABLE = AVAILABLE_VEHICLES.some(
+  (vehicle) => vehicle.id === "minibus"
+);
+
+const PASSENGER_OPTIONS = MINIBUS_AVAILABLE
+  ? [1, 2, 3, 4, 6, 8, 12, 14]
+  : [1, 2, 3, 4];
 
 function createDefaultValues(
   service: string,
@@ -96,9 +109,11 @@ export default function BookingForm({
     pickupTime: values.pickupTime,
   });
 
-  // Keep the vehicle aligned with passenger capacity.
+  // Keep the vehicle aligned with passenger capacity, ignoring vehicles
+  // that are not currently offered.
   useEffect(() => {
-    setValue("vehicle", Number(passengers) > 4 ? "minibus" : "sedan");
+    const vehicle: VehicleId = Number(passengers) > 4 ? "minibus" : "sedan";
+    setValue("vehicle", isVehicleAvailable(vehicle) ? vehicle : DEFAULT_VEHICLE);
   }, [passengers, setValue]);
 
   const onSubmit = async (data: BookingFormValues) => {
@@ -249,7 +264,7 @@ export default function BookingForm({
       <div className="grid grid-cols-3 gap-3">
         <Field label="Passengers">
           <Select {...register("passengers")}>
-            {[1, 2, 3, 4, 6, 8, 12, 14].map((n) => (
+            {PASSENGER_OPTIONS.map((n) => (
               <option key={n} value={String(n)}>
                 {n} {n === 1 ? "person" : "people"}
               </option>
@@ -269,7 +284,7 @@ export default function BookingForm({
 
         <Field label="Vehicle Type">
           <Select {...register("vehicle")}>
-            {Object.values(VEHICLES).map((v) => (
+            {AVAILABLE_VEHICLES.map((v) => (
               <option key={v.id} value={v.id}>
                 {v.shortLabel}
               </option>

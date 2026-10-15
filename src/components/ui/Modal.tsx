@@ -27,23 +27,25 @@ export default function Modal({ isOpen, onClose, children, className }: ModalPro
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
     >
-      <div
-        className={cn(
-          "bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative border border-gray-100 my-8",
-          className
-        )}
-      >
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close modal"
-          className="absolute top-5 right-5 p-2 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+      <div className="flex min-h-full items-center justify-center p-3 sm:p-4">
+        <div
+          className={cn(
+            "bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative border border-gray-100 my-4",
+            className
+          )}
         >
-          <X className="w-5 h-5" />
-        </button>
-        {children}
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close modal"
+            className="absolute top-5 right-5 p-2 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          {children}
+        </div>
       </div>
     </div>
   );
