@@ -10,6 +10,8 @@
     "generate:routes": "tsx scripts/generate-route-content.ts"
   },
   "dependencies": {
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.1.0",
     "clsx": "^2.1.1",
     "lucide-react": "^1.16.0",
     "next": "^14.2.23",

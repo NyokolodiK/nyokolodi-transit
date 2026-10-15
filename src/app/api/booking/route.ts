@@ -1,115 +1,100 @@
 import { NextResponse } from "next/server";
-import { emailShell, renderRows, sendNotification } from "@/lib/email";
+import { sendCustomerConfirmation, sendNotification } from "@/lib/email";
+import type { NotificationPayload } from "@/lib/notification";
 
-type NotificationType = "booking" | "quote" | "contact";
-
-interface NotificationPayload {
-  type?: NotificationType;
-  [key: string]: unknown;
-}
+type RawPayload = Record<string, unknown>;
 
 function asString(value: unknown): string {
   if (value === undefined || value === null) return "";
   return String(value).trim();
 }
 
+function asNumber(value: unknown): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function asOptionalNumber(value: unknown): number | undefined {
+  if (value === undefined || value === null || value === "") return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function buildPayload(type: string, raw: RawPayload): NotificationPayload {
+  if (type === "booking") {
+    return {
+      type: "booking",
+      reference: asString(raw.reference),
+      service: asString(raw.service),
+      pickup: asString(raw.pickup),
+      dropoff: asString(raw.dropoff),
+      date: asString(raw.date),
+      time: asString(raw.time),
+      passengers: asNumber(raw.passengers),
+      luggage: asNumber(raw.luggage),
+      vehicle: asString(raw.vehicle),
+      distanceKm: asOptionalNumber(raw.distanceKm),
+      hours: asOptionalNumber(raw.hours),
+      fare: asString(raw.fare),
+      flightNumber: asString(raw.flightNumber) || undefined,
+      name: asString(raw.name),
+      phone: asString(raw.phone),
+      email: asString(raw.email),
+    };
+  }
+
+  if (type === "quote") {
+    return {
+      type: "quote",
+      quoteId: asString(raw.quoteId),
+      companyName: asString(raw.companyName),
+      contactName: asString(raw.contactName),
+      phone: asString(raw.phone),
+      email: asString(raw.email),
+      serviceType: asString(raw.serviceType),
+      estimatedVehicles: asString(raw.estimatedVehicles),
+      notes: asString(raw.notes),
+    };
+  }
+
+  return {
+    type: "contact",
+    name: asString(raw.name),
+    phone: asString(raw.phone),
+    email: asString(raw.email),
+    subject: asString(raw.subject) || "General Inquiry",
+    message: asString(raw.message),
+  };
+}
+
 export async function POST(request: Request) {
-  let payload: NotificationPayload;
+  let raw: RawPayload;
   try {
-    payload = (await request.json()) as NotificationPayload;
+    raw = (await request.json()) as RawPayload;
   } catch {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const type = payload?.type;
+  const type = asString(raw?.type);
 
   if (type !== "booking" && type !== "quote" && type !== "contact") {
     return NextResponse.json({ error: "Unknown notification type." }, { status: 400 });
   }
 
-  const { subject, title, intro, rows } = buildEmail(type, payload);
-  const html = emailShell(title, intro, renderRows(rows));
-  const replyTo = asString(payload.email) || undefined;
+  const payload = buildPayload(type, raw);
 
-  const result = await sendNotification({ subject, html, replyTo });
+  const result = await sendNotification(payload);
 
   if (!result.ok) {
     const status = result.error?.includes("not configured") ? 503 : 502;
     return NextResponse.json({ error: result.error }, { status });
   }
 
-  return NextResponse.json({ ok: true });
-}
+  const confirmation = await sendCustomerConfirmation(payload);
 
-function buildEmail(
-  type: NotificationType,
-  payload: NotificationPayload
-): {
-  subject: string;
-  title: string;
-  intro: string;
-  rows: Array<{ label: string; value: unknown }>;
-} {
-  if (type === "booking") {
-    const reference = asString(payload.reference) || "New request";
-    const pickup = asString(payload.pickup);
-    const dropoff = asString(payload.dropoff);
-    return {
-      subject: `New Booking ${reference}: ${pickup} → ${dropoff}`,
-      title: `New Booking Request (${reference})`,
-      intro: "A new booking was submitted through the website.",
-      rows: [
-        { label: "Reference", value: reference },
-        { label: "Service", value: payload.service },
-        { label: "Pickup", value: pickup },
-        { label: "Drop-off", value: dropoff },
-        { label: "Date", value: payload.date || "As soon as possible" },
-        { label: "Time", value: payload.time },
-        { label: "Passengers", value: payload.passengers },
-        { label: "Luggage", value: payload.luggage },
-        { label: "Vehicle", value: payload.vehicle },
-        { label: "Distance (km)", value: payload.distanceKm },
-        { label: "Estimated Fare", value: payload.fare },
-        { label: "Flight Number", value: payload.flightNumber },
-        { label: "Customer", value: payload.name },
-        { label: "Phone", value: payload.phone },
-        { label: "Email", value: payload.email },
-      ],
-    };
-  }
-
-  if (type === "quote") {
-    const quoteId = asString(payload.quoteId) || "New request";
-    const company = asString(payload.companyName) || "Company";
-    return {
-      subject: `Corporate Quote Request ${quoteId}: ${company}`,
-      title: `Corporate Quote Request (${quoteId})`,
-      intro: "A corporate quote request was submitted through the website.",
-      rows: [
-        { label: "Quote ID", value: quoteId },
-        { label: "Company", value: payload.companyName },
-        { label: "Contact", value: payload.contactName },
-        { label: "Phone", value: payload.phone },
-        { label: "Email", value: payload.email },
-        { label: "Service", value: payload.serviceType },
-        { label: "Fleet Size", value: payload.estimatedVehicles },
-        { label: "Additional Details", value: payload.notes },
-      ],
-    };
-  }
-
-  const name = asString(payload.name) || "Website visitor";
-  const topic = asString(payload.subject) || "General Inquiry";
-  return {
-    subject: `Website Message (${topic}) from ${name}`,
-    title: `New Contact Message: ${topic}`,
-    intro: "A new message was submitted through the website contact form.",
-    rows: [
-      { label: "Name", value: payload.name },
-      { label: "Phone", value: payload.phone },
-      { label: "Email", value: payload.email },
-      { label: "Topic", value: payload.subject },
-      { label: "Message", value: payload.message },
-    ],
-  };
+  return NextResponse.json({
+    ok: true,
+    confirmationSent: confirmation.ok,
+    ...(confirmation.ok ? {} : { confirmationError: confirmation.error }),
+  });
 }
