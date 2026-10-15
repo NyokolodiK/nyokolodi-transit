@@ -10,7 +10,7 @@
 Nyokolodi Transit is a professional shuttle and chauffeur service headquartered in **Centurion, Gauteng, South Africa**. This repository contains the public-facing marketing website built with **Next.js 14** and **Tailwind CSS**.
 
 **Business Address:** Lenchen Ave, Rooihuiskraal North, Centurion, 0157, Gauteng  
-**Contact:** +27 (0)12 661 0000 | info@nyokolodi-transit.co.za  
+**Contact:** +27 (0)64 555 4869 | info@nyokolodi-transit.co.za  
 **Operating Hours:** 24 / 7
 
 ---
