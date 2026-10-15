@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { ROUTES } from "@/lib/routes";
 
-const SITE_URL = "https://nyokoloditransit.co.za";
+const SITE_URL = "https://nyokolodi-transit.co.za";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

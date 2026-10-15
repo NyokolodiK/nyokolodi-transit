@@ -4,7 +4,7 @@ import { ArrowRight, MapPin } from "lucide-react";
 import { SITE } from "@/lib/site";
 import { ROUTES, routesByHub } from "@/lib/routes";
 
-const SITE_URL = "https://nyokoloditransit.co.za";
+const SITE_URL = "https://nyokolodi-transit.co.za";
 
 export const metadata: Metadata = {
   title: "Shuttle Routes Across Gauteng & Beyond | Nyokolodi Transit",

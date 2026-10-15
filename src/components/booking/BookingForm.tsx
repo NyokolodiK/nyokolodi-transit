@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { ArrowRight, Calendar, Clock, Mail, MapPin, Route } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { ArrowRight, Calendar, Clock, Mail, Route } from "lucide-react";
 import {
   AVAILABLE_VEHICLES,
   DEFAULT_VEHICLE,
@@ -23,6 +23,7 @@ import Alert from "@/components/ui/Alert";
 import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
+import AddressInput, { PlaceSelection } from "@/components/ui/AddressInput";
 import ServiceCategorySelector from "./ServiceCategorySelector";
 import FareSummary from "./FareSummary";
 
@@ -48,6 +49,11 @@ interface BookingFormProps {
   initialPickup: string;
   initialDropoff: string;
   onSuccess: (summary: BookingSummary) => void;
+}
+
+interface DistanceEndpoint {
+  address: string;
+  placeId?: string;
 }
 
 const MINIBUS_AVAILABLE = AVAILABLE_VEHICLES.some(
@@ -92,6 +98,8 @@ export default function BookingForm({
     handleSubmit,
     watch,
     setValue,
+    getValues,
+    control,
     formState: { errors },
   } = useForm<BookingFormValues>({
     defaultValues: createDefaultValues(initialService, initialPickup, initialDropoff),
@@ -100,6 +108,84 @@ export default function BookingForm({
   const { submit, isSubmitting, error } = useNotificationSubmit();
   const values = watch();
   const passengers = watch("passengers");
+
+  const [distanceStatus, setDistanceStatus] = useState<
+    "idle" | "loading" | "auto" | "error"
+  >("idle");
+  const [distanceNote, setDistanceNote] = useState("");
+  const lastLookupRef = useRef("");
+  const pickupPlaceIdRef = useRef<string | undefined>(undefined);
+  const dropoffPlaceIdRef = useRef<string | undefined>(undefined);
+
+  const lookupDistance = useCallback(
+    async (origin: DistanceEndpoint, destination: DistanceEndpoint) => {
+      const from = origin.address.trim();
+      const to = destination.address.trim();
+      if (!from || !to) return;
+
+      const key = `${origin.placeId ?? from}||${destination.placeId ?? to}`;
+      if (key === lastLookupRef.current) return;
+      lastLookupRef.current = key;
+
+      setDistanceStatus("loading");
+      setDistanceNote("");
+
+      try {
+        const response = await fetch("/api/distance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            origin: from,
+            destination: to,
+            originPlaceId: origin.placeId,
+            destinationPlaceId: destination.placeId,
+          }),
+        });
+
+        if (response.status === 503) {
+          // Distance service not configured - keep manual entry, no error.
+          lastLookupRef.current = "";
+          setDistanceStatus("idle");
+          return;
+        }
+
+        const data = (await response.json().catch(() => ({}))) as {
+          distanceKm?: number;
+          error?: string;
+        };
+
+        if (!response.ok || typeof data.distanceKm !== "number") {
+          lastLookupRef.current = "";
+          setDistanceStatus("error");
+          setDistanceNote(
+            data.error || "Couldn't calculate the distance automatically."
+          );
+          return;
+        }
+
+        setValue("distanceKm", String(data.distanceKm), {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+        setDistanceStatus("auto");
+        setDistanceNote(
+          `Auto-calculated ${data.distanceKm} km - adjust if needed.`
+        );
+      } catch {
+        lastLookupRef.current = "";
+        setDistanceStatus("error");
+        setDistanceNote(
+          "Couldn't reach the distance service. Enter the distance manually."
+        );
+      }
+    },
+    [setValue]
+  );
+
+  const distanceField = register("distanceKm", {
+    required: "Estimated distance is required",
+    min: { value: 1, message: "Enter at least 1 km" },
+  });
 
   const fare = resolveFare({
     service: values.service,
@@ -115,6 +201,13 @@ export default function BookingForm({
     const vehicle: VehicleId = Number(passengers) > 4 ? "minibus" : "sedan";
     setValue("vehicle", isVehicleAvailable(vehicle) ? vehicle : DEFAULT_VEHICLE);
   }, [passengers, setValue]);
+
+  const triggerDistanceLookup = useCallback(() => {
+    void lookupDistance(
+      { address: getValues("pickup"), placeId: pickupPlaceIdRef.current },
+      { address: getValues("dropoff"), placeId: dropoffPlaceIdRef.current }
+    );
+  }, [lookupDistance, getValues]);
 
   const onSubmit = async (data: BookingFormValues) => {
     const reference = `NYO-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -177,6 +270,13 @@ export default function BookingForm({
     });
   };
 
+  const distanceHint =
+    distanceStatus === "loading"
+      ? "Calculating distance..."
+      : distanceStatus === "auto" || distanceStatus === "error"
+        ? distanceNote
+        : `Fare is R${fare.vehicleRate.ratePerKm}/km (minimum R${fare.vehicleRate.minimumFare}). We'll estimate the distance from your addresses.`;
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
       <ServiceCategorySelector
@@ -188,20 +288,70 @@ export default function BookingForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field label="Pickup Location" error={errors.pickup?.message}>
-          <Input
-            type="text"
-            placeholder="e.g. Centurion or OR Tambo (JNB)"
-            icon={<MapPin className="w-4 h-4" />}
-            {...register("pickup", { required: "Pickup location is required" })}
+          <Controller
+            name="pickup"
+            control={control}
+            rules={{ required: "Pickup location is required" }}
+            render={({ field }) => (
+              <AddressInput
+                name={field.name}
+                value={field.value}
+                invalid={Boolean(errors.pickup)}
+                placeholder="e.g. Centurion or OR Tambo (JNB)"
+                onChange={(value) => {
+                  field.onChange(value);
+                  pickupPlaceIdRef.current = undefined;
+                }}
+                onBlur={triggerDistanceLookup}
+                onPlaceSelect={(selection: PlaceSelection) => {
+                  pickupPlaceIdRef.current = selection.placeId;
+                  void lookupDistance(
+                    {
+                      address: selection.description,
+                      placeId: selection.placeId,
+                    },
+                    {
+                      address: getValues("dropoff"),
+                      placeId: dropoffPlaceIdRef.current,
+                    }
+                  );
+                }}
+              />
+            )}
           />
         </Field>
 
         <Field label="Drop-off Location" error={errors.dropoff?.message}>
-          <Input
-            type="text"
-            placeholder="e.g. Sandton, Pretoria or Lanseria (HLA)"
-            icon={<MapPin className="w-4 h-4" />}
-            {...register("dropoff", { required: "Drop-off location is required" })}
+          <Controller
+            name="dropoff"
+            control={control}
+            rules={{ required: "Drop-off location is required" }}
+            render={({ field }) => (
+              <AddressInput
+                name={field.name}
+                value={field.value}
+                invalid={Boolean(errors.dropoff)}
+                placeholder="e.g. Sandton, Pretoria or Lanseria (HLA)"
+                onChange={(value) => {
+                  field.onChange(value);
+                  dropoffPlaceIdRef.current = undefined;
+                }}
+                onBlur={triggerDistanceLookup}
+                onPlaceSelect={(selection: PlaceSelection) => {
+                  dropoffPlaceIdRef.current = selection.placeId;
+                  void lookupDistance(
+                    {
+                      address: getValues("pickup"),
+                      placeId: pickupPlaceIdRef.current,
+                    },
+                    {
+                      address: selection.description,
+                      placeId: selection.placeId,
+                    }
+                  );
+                }}
+              />
+            )}
           />
         </Field>
       </div>
@@ -227,7 +377,7 @@ export default function BookingForm({
         <Field
           label="Estimated Distance (km)"
           error={errors.distanceKm?.message}
-          hint={`Fare is R${fare.vehicleRate.ratePerKm}/km (minimum R${fare.vehicleRate.minimumFare}). Enter your best estimate.`}
+          hint={distanceHint}
         >
           <Input
             type="number"
@@ -235,10 +385,14 @@ export default function BookingForm({
             step={1}
             placeholder="e.g. 45"
             icon={<Route className="w-4 h-4" />}
-            {...register("distanceKm", {
-              required: "Estimated distance is required",
-              min: { value: 1, message: "Enter at least 1 km" },
-            })}
+            {...distanceField}
+            onChange={(event) => {
+              distanceField.onChange(event);
+              if (distanceStatus === "auto" || distanceStatus === "error") {
+                setDistanceStatus("idle");
+                setDistanceNote("");
+              }
+            }}
           />
         </Field>
       )}

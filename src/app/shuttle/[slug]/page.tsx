@@ -10,7 +10,7 @@ import {
   getRoute,
 } from "@/lib/routes";
 
-const SITE_URL = "https://nyokoloditransit.co.za";
+const SITE_URL = "https://nyokolodi-transit.co.za";
 
 export function generateStaticParams() {
   return ROUTES.map((route) => ({ slug: route.slug }));

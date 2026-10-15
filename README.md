@@ -10,7 +10,7 @@
 Nyokolodi Transit is a professional shuttle and chauffeur service headquartered in **Centurion, Gauteng, South Africa**. This repository contains the public-facing marketing website built with **Next.js 14** and **Tailwind CSS**.
 
 **Business Address:** Lenchen Ave, Rooihuiskraal North, Centurion, 0157, Gauteng  
-**Contact:** +27 (0)12 661 0000 | info@nyokoloditransit.co.za  
+**Contact:** +27 (0)12 661 0000 | info@nyokolodi-transit.co.za  
 **Operating Hours:** 24 / 7
 
 ---
@@ -63,14 +63,31 @@ total = max(minimum, distanceKm × ratePerKm)   (+ after-hours surcharge)
 - Tolls and parking are excluded from the estimate.
 
 Edit `VEHICLES` and `SURCHARGES` in `src/lib/rates.ts` to change any rate — no
-other file needs touching. The **Distance (km)** field is entered manually (no
-maps/routing API).
+other file needs touching.
+
+### Address lookup & auto distance (Google Maps)
+The booking form's pickup/drop-off fields offer **address autocomplete** (via
+`/api/places/autocomplete` → Places API (New) Autocomplete, Essentials SKU,
+10,000 free calls/month). Selecting a suggestion stores its **place ID**. When
+both addresses are set, the form calls `/api/distance` (`computeRoutes`,
+Essentials SKU, 10,000 free calls/month) to fill in the **Distance (km)**.
+
+The key stays server-side; both APIs are proxied through Next.js route handlers.
+If no key is configured, the fields behave as plain text and distance is entered
+manually — the site still works.
+
+1. In [Google Cloud Console](https://console.cloud.google.com/google/maps-apis)
+   enable **Routes API** and **Places API (New)**, then create an API key
+   (billing account required; the first 10,000 calls per SKU each month are free).
+2. Add it to `.env.local`:
+   - `GOOGLE_MAPS_API_KEY` — your key. Keep it server-side only.
+3. Optionally set a **daily quota cap** on the key to prevent overages.
 
 ### Business details
 Phone, WhatsApp, email and addresses are centralised in `src/lib/site.ts`.
 
 ### Email setup (Resend)
-1. Register a domain (e.g. `nyokoloditransit.co.za`) and create a mailbox.
+1. Register a domain (e.g. `nyokolodi-transit.co.za`) and create a mailbox.
 2. Add and verify the domain in [Resend → Domains](https://resend.com/domains).
 3. Create an API key and copy `.env.example` to `.env.local`, then fill in:
    - `RESEND_API_KEY` — your Resend key.

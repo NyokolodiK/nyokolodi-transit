@@ -5,10 +5,10 @@ export const SITE = {
   phoneE164: "+27126610000",
   whatsappNumber: "27126610000",
   whatsappDisplay: "+27 (0)12 661 0000",
-  email: "info@nyokoloditransit.co.za",
+  email: "info@nyokolodi-transit.co.za",
   address: "Lenchen Ave, Rooihuiskraal North, Centurion, 0157, Gauteng",
-  bookingsEmail: "bookings@nyokoloditransit.co.za",
-  notificationsEmail: "info@nyokoloditransit.co.za",
+  bookingsEmail: "bookings@nyokolodi-transit.co.za",
+  notificationsEmail: "info@nyokolodi-transit.co.za",
 } as const;
 
 export function buildWhatsAppLink(message: string, phone: string = SITE.whatsappNumber): string {
